@@ -1,0 +1,14 @@
+sysctl -w net.ipv4.ip_forward=1
+sysctl -w net.ipv4.ip_no_pmtu_disc=1
+iptables -t nat -A POSTROUTING -s 10.8.0.0/16 -o eth0 -m policy --dir out --pol ipsec -j ACCEPT
+iptables -t nat -A POSTROUTING -s 10.8.0.0/16 -o eth0 -j MASQUERADE
+iptables -t mangle -A POSTROUTING -o eth0 -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss 1320
+
+rm -f /etc/ipsec.secrets
+[ -f /etc/ipsec.secrets ] || echo ": PSK \"YAZ$(openssl rand -base64 32 2>/dev/null)\"" > /etc/ipsec.secrets
+
+# hotfix for https://github.com/gaomd/docker-ikev2-vpn-server/issues/7
+rm -f /var/run/starter.charon.pid
+
+# http://wiki.loopop.net/doku.php?id=server:vpn:strongswanonopenvz
+/usr/sbin/ipsec start --nofork

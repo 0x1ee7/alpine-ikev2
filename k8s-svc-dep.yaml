@@ -1,0 +1,40 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: strongswan
+spec:
+  selector:
+    app: ikev2
+  ports:
+    - protocol: UDP
+      port: 500
+      targetPort: 500
+      name: upd-500
+    - protocol: UDP
+      port: 4500
+      targetPort: 4500
+      name: upd-4500
+  type: LoadBalancer
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: strongswan
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ikev2
+    spec:
+      containers:
+      - image: us.gcr.io/exec-vp/alpine-ikev2
+        imagePullPolicy: Always
+        name: sswn-vpn
+        ports:
+        - containerPort: 500
+          protocol: UDP
+        - containerPort: 4500
+          protocol: UDP
+        securityContext:
+          privileged: true
