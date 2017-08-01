@@ -28,7 +28,7 @@ spec:
         app: ikev2
     spec:
       containers:
-      - image: us.gcr.io/exec-vp/alpine-ikev2
+      - image: 0x1337/alpine-ikev2
         imagePullPolicy: Always
         name: sswn-vpn
         ports:
