@@ -1,6 +1,7 @@
-FROM alpine:edge
+FROM alpine:latest
 
 ENV STRONGSWAN_RELEASE https://download.strongswan.org/strongswan.tar.bz2
+ENV ACMETOOL_RELEASE https://github.com/hlandau/acme/releases/download/v0.0.67/acmetool-v0.0.67-linux_amd64.tar.gz
 
 RUN apk --update add build-base \
             ca-certificates \
@@ -10,6 +11,8 @@ RUN apk --update add build-base \
             iptables-dev \
             openssl \
             openssl-dev && \
+    curl -Lo /tmp/acmetool.tar.gz $ACMETOOL_RELEASE && \
+    tar --strip-components=1 -C /usr -xzf /tmp/acmetool.tar.gz && \
     mkdir -p /tmp/strongswan && \
     curl -Lo /tmp/strongswan.tar.bz2 $STRONGSWAN_RELEASE && \
     tar --strip-components=1 -C /tmp/strongswan -xjf /tmp/strongswan.tar.bz2 && \
@@ -52,10 +55,11 @@ RUN apk --update add build-base \
     make && \
     make install && \
     rm -rf /tmp/* && \
-    apk del build-base curl openssl-dev && \
+    apk del build-base openssl-dev && \
     rm -rf /var/cache/apk/*
 
 COPY ./etc /etc/
 ADD ./start-vpn /usr/bin
 EXPOSE 500/udp 4500/udp
+EXPOSE 80/tcp
 CMD /usr/bin/start-vpn

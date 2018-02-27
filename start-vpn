@@ -5,7 +5,7 @@ iptables -t nat -A POSTROUTING -s 10.8.0.0/16 -o eth0 -j MASQUERADE
 iptables -t mangle -A POSTROUTING -o eth0 -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss 1320
 
 rm -f /etc/ipsec.secrets
-[ -f /etc/ipsec.secrets ] || echo ": PSK \"YAZ$(openssl rand -base64 32 2>/dev/null)\"" > /etc/ipsec.secrets
+[ -f /etc/ipsec.secrets ] || printf ": RSA privkey.pem\nyaxx : EAP \"YAZ$(openssl rand -base64 32 2>/dev/null)\"" > /etc/ipsec.secrets
 
 # hotfix for https://github.com/gaomd/docker-ikev2-vpn-server/issues/7
 rm -f /var/run/starter.charon.pid
